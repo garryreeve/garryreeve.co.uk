@@ -1,0 +1,97 @@
+﻿/* =================
+   Repo for useful Mixins
+   ================= */
+
+// Clearfix
+@mixin clearfix() {
+    *zoom: 1;
+    &:before, &:after {
+        content: " ";
+        display: table;
+    }
+    &:after {
+        clear: both;
+    }
+}
+
+// PX to REM
+@function calculateRem($size) {
+  $remSize: $size / 10px;
+  @return $remSize * 1rem;
+}
+@mixin font-size($size) {
+  font-size: $size;
+  font-size: calculateRem($size);
+}
+
+// Transition
+@mixin transition($args) {
+    -webkit-transition: $args;
+    -moz-transition: $args;
+    -o-transition: $args;
+    transition: $args;
+}
+
+// Animation
+@mixin animation($args) {
+  -webkit-animation: #{$args};
+  -moz-animation: #{$args};
+  -o-animation: #{$args};
+  animation: #{$args};      
+}
+
+// Keyframes
+@mixin keyframes($name) {
+    @-webkit-keyframes #{$name} {
+        @content;
+    }
+    @-moz-keyframes #{$name} {
+        @content;
+    }  
+    @-ms-keyframes #{$name} {
+        @content;
+    }
+    @-o-keyframes #{$name} {
+        @content;
+    }  
+    @keyframes #{$name} {
+        @content;
+    }
+}
+
+// CSS Triangle
+@mixin triangle ($size, $color, $direction) {
+    display: inline-block;
+    height: 0;
+    width: 0;
+
+    $width: nth($size, 1);
+    $height: nth($size, length($size));
+
+    $foreground-color: $color;
+    $background-color: transparent;
+
+    $width: $width / 2;
+    $height: if(length($size) > 1, $height, $height/2);
+
+    @if $direction == up {
+        border-bottom: $height solid $foreground-color;
+        border-left: $width solid $background-color;
+        border-right: $width solid $background-color;
+
+    } @else if $direction == right {
+        border-bottom: $width solid $background-color;
+        border-left: $height solid $foreground-color;
+        border-top: $width solid $background-color;
+
+    } @else if $direction == down {
+        border-left: $width solid $background-color;
+        border-right: $width solid $background-color;
+        border-top: $height solid $foreground-color;
+
+    } @else if $direction == left {
+        border-bottom: $width solid $background-color;
+        border-right: $height solid $foreground-color;
+        border-top: $width solid $background-color;
+    }
+}
