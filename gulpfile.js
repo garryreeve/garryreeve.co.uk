@@ -4,34 +4,63 @@ var watch = require('gulp-watch');
 var rename = require('gulp-rename');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
+var cssmin = require('gulp-cssmin');
 var handlebars = require('gulp-compile-handlebars');
+var mergeStream = require('merge-stream');
+var posts = require('./data.json');
 
-/* Sass compilation */ 
+// Sass compilation
 gulp.task('css', function () {
-  return gulp.src('css/scss/styles.scss')
-    .pipe(sass({outputStyle: 'compact'}).on('error', sass.logError))
-    .pipe(gulp.dest('css/'));
+    gulp.src('css/scss/**/*.scss')
+        .pipe(sass({ outputStyle: 'compact' })) // Compile sass
+        .pipe(gulp.dest('./css/')) // Output compiled CSS
+        .pipe(rename({ suffix: '.min' })) // Create .min version
+        .pipe(cssmin())
+        .pipe(gulp.dest('./css/')); // Output minified version
 });
 
-/* JS Library concat */ 
-gulp.task('js-lib', function() {
-  return gulp.src('js/lib/*.js')
-    .pipe(concat('libs.js'))
-    .pipe(gulp.dest('js/'));
+// Minify JS
+gulp.task('js-min', function () {
+    gulp.src('js/scripts.js')
+        .pipe(uglify()) // Minify JS
+        .pipe(rename({ suffix: '.min' })) // Create .min version
+        .pipe(gulp.dest('js/')); // Output
 });
 
-/* HBS to static html */ 
+// Bundle JS
+gulp.task('js-bundle', function () {
+    gulp.src('js/lib/**/*.js')
+        .pipe(concat('plugins.js')) // Bundle all files 
+        .pipe(gulp.dest('./js/')) // Output dir
+        .pipe(uglify()) // Minify bundled file
+        .pipe(rename({ suffix: '.min' })) // Create .min version
+        .pipe(gulp.dest('js/')); // Output
+});
+
+// HBS to static html
 gulp.task('hbs', function () {
-    var templateData = {},
-    options = {
-        ignorePartials: true,
-        batch : ['./views/partials'],
-        helpers : {}
+    var tasks = [];
+    for (var l in posts) {
+        var post = posts[l];
+        var options = {
+            ignorePartials: true,
+            batch : ['./views/partials'],
+            helpers : {}
+        }
+        tasks.push( gulp.src('views/'+post.template+'.hbs')
+            .pipe(handlebars(post, options))
+            .pipe(rename(post.slug + ".html"))
+            .pipe(gulp.dest('./'))
+        );
     }
-    return gulp.src('views/*.hbs')
-        .pipe(handlebars(templateData, options))
-        .pipe(rename(function (path) { path.extname = ".html" }))
-        .pipe(gulp.dest('./'));
+    return mergeStream(tasks);
 });
 
-gulp.task('default', ['css', 'js-lib', 'hbs']);
+// Watch tasks
+gulp.task('watch', function () {
+    gulp.watch('css/scss/**/*.scss', ['css']);
+    gulp.watch('js/scripts.js', ['js-min']);
+    gulp.watch('js/lib/**/*.js', ['js-bundle']);
+});
+
+gulp.task('default', ['css', 'js-min', 'js-bundle', 'hbs']);

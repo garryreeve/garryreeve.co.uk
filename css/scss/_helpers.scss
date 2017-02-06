@@ -1,1 +1,3 @@
-.hidden { display: none; }
+﻿.clearfix { @include clearfix; }
+.clear { clear: both !important; }
+.hidden { display: none !important; }

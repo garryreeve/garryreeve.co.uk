@@ -1,0 +1,18 @@
+[{
+    "title": "Home",
+    "slug": "index",
+    "content": "Content for the home page",
+    "template": "page"
+},
+{
+    "title": "About us",
+    "slug": "about",
+    "content": "Lorem ipsum dolor sit amet",
+    "template": "page"
+},
+{
+    "title": "Contact us",
+    "slug": "contact",
+    "content": "A contact form can go here",
+    "template": "contact"
+}]
